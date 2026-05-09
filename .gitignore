@@ -1,0 +1,53 @@
+# .gitignore for STM32CubeIDE / Eclipse STM32 projects
+# Keep source, .ioc, linker scripts and IDE project files required to build on other machines.
+
+# Eclipse / STM32CubeIDE workspace metadata (local)
+/.metadata/
+workspace/.metadata/
+
+# Generated build outputs (safe to ignore)
+/**/Debug/
+/**/Debug/**
+*/Debug/
+
+# Common build artefacts
+**/*.o
+**/*.su
+**/*.d
+**/*.elf
+**/*.map
+**/*.list
+**/*.bin
+**/*.hex
+**/*.size
+**/*.cyclo
+
+# Toolchain files that can be recreated
+**/objects.mk
+**/objects.list
+**/subdir.mk
+
+# Temporary/IDE specific
+*.launch
+*.log
+*.tmp
+*~
+*.bak
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Editor/IDE folders (per-developer)
+.vscode/
+.idea/
+
+# Logs, caches
+*.log
+*.cache
+
+# Notes for contributors:
+# - Do NOT ignore: *.ioc, *.ld (linker scripts), Core/, Drivers/, .project, .cproject, makefile
+#   Those are needed to import and build the project on another machine.
