@@ -41,12 +41,26 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-/* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
+/* Definitions for FastTask */
+osThreadId_t FastTaskHandle;
+const osThreadAttr_t FastTask_attributes = {
+  .name = "FastTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+  .priority = (osPriority_t) osPriorityHigh,
+};
+/* Definitions for SlowTask */
+osThreadId_t SlowTaskHandle;
+const osThreadAttr_t SlowTask_attributes = {
+  .name = "SlowTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+
+osThreadId_t MediumTaskHandle;
+const osThreadAttr_t MediumTask_attributes = {
+		.name = "MediumTask",
+		.stack_size = 128 * 4,
+		.priority = (osPriority_t) osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
 
@@ -55,7 +69,9 @@ const osThreadAttr_t defaultTask_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-void StartDefaultTask(void *argument);
+void vFastTask(void *argument);
+void vSlowTask(void *argument);
+void vMediumTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -119,8 +135,14 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  /* creation of FastTask */
+  FastTaskHandle = osThreadNew(vFastTask, NULL, &FastTask_attributes);
+
+  /* creation of SlowTask */
+  SlowTaskHandle = osThreadNew(vSlowTask, NULL, &SlowTask_attributes);
+
+  /* creation of MediumTask */
+    MediumTaskHandle = osThreadNew(vMediumTask, NULL, &MediumTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -208,10 +230,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PA5 */
-  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  /*Configure GPIO pins : PA5 PA6 PA7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -226,14 +248,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_vFastTask */
 /**
-  * @brief  Function implementing the defaultTask thread.
+  * @brief  Function implementing the FastTask thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+/* USER CODE END Header_vFastTask */
+void vFastTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
@@ -241,10 +263,38 @@ void StartDefaultTask(void *argument)
   {
    // osDelay(1);
 	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-	  vTaskDelay(500);
+	  vTaskDelay(100);
 
   }
   /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_vSlowTask */
+/**
+* @brief Function implementing the SlowTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_vSlowTask */
+void vSlowTask(void *argument)
+{
+  /* USER CODE BEGIN vSlowTask */
+  /* Infinite loop */
+  for(;;)
+  {
+	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7);
+    vTaskDelay(1000);
+  }
+  /* USER CODE END vSlowTask */
+}
+
+void vMediumTask(void *arguments)
+{
+	for(;;)
+	{
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+		vTaskDelay(500);
+	}
 }
 
 /**
