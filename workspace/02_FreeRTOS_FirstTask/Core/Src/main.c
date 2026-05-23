@@ -42,24 +42,24 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* Definitions for FastTask */
-osThreadId_t FastTaskHandle;
-const osThreadAttr_t FastTask_attributes = {
-  .name = "FastTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityHigh,
+osThreadId_t GreenTaskHandle;
+const osThreadAttr_t GreenTask_attributes = {
+  .name = "GreenTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for SlowTask */
-osThreadId_t SlowTaskHandle;
-const osThreadAttr_t SlowTask_attributes = {
-  .name = "SlowTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
+osThreadId_t RedTaskHandle;
+const osThreadAttr_t RedTask_attributes = {
+  .name = "RedTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 
-osThreadId_t MediumTaskHandle;
-const osThreadAttr_t MediumTask_attributes = {
-		.name = "MediumTask",
-		.stack_size = 128 * 4,
+osThreadId_t YellowTaskHandle;
+const osThreadAttr_t YellowTask_attributes = {
+		.name = "YellowTask",
+		.stack_size = 256 * 4,
 		.priority = (osPriority_t) osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
@@ -69,9 +69,9 @@ const osThreadAttr_t MediumTask_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-void vFastTask(void *argument);
-void vSlowTask(void *argument);
-void vMediumTask(void *argument);
+void vGreenTask(void *argument);
+void vRedTask(void *argument);
+void vYellowTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -136,13 +136,13 @@ int main(void)
 
   /* Create the thread(s) */
   /* creation of FastTask */
-  FastTaskHandle = osThreadNew(vFastTask, NULL, &FastTask_attributes);
+  GreenTaskHandle = osThreadNew(vGreenTask, NULL, &GreenTask_attributes);
 
   /* creation of SlowTask */
-  SlowTaskHandle = osThreadNew(vSlowTask, NULL, &SlowTask_attributes);
+  RedTaskHandle = osThreadNew(vRedTask, NULL, &RedTask_attributes);
 
   /* creation of MediumTask */
-    MediumTaskHandle = osThreadNew(vMediumTask, NULL, &MediumTask_attributes);
+  YellowTaskHandle = osThreadNew(vYellowTask, NULL, &YellowTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -255,15 +255,20 @@ static void MX_GPIO_Init(void)
   * @retval None
   */
 /* USER CODE END Header_vFastTask */
-void vFastTask(void *argument)
+void vGreenTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
   for(;;)
   {
    // osDelay(1);
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-	  vTaskDelay(100);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
+	  vTaskDelay(3000);
+
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	  vTaskDelay(4000);
 
   }
   /* USER CODE END 5 */
@@ -276,24 +281,36 @@ void vFastTask(void *argument)
 * @retval None
 */
 /* USER CODE END Header_vSlowTask */
-void vSlowTask(void *argument)
+void vRedTask(void *argument)
 {
   /* USER CODE BEGIN vSlowTask */
   /* Infinite loop */
   for(;;)
   {
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7);
-    vTaskDelay(1000);
+	  vTaskDelay(4000);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+	  vTaskDelay(3000);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
+	  vTaskDelay(4000);
   }
   /* USER CODE END vSlowTask */
 }
 
-void vMediumTask(void *arguments)
+void vYellowTask(void *arguments)
 {
 	for(;;)
 	{
-		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
-		vTaskDelay(500);
+		vTaskDelay(3000);
+		for(int i=0;i<5;i++){
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
+			vTaskDelay(100);
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+			vTaskDelay(100);
+		}
+		vTaskDelay(6000);
+
 	}
 }
 
