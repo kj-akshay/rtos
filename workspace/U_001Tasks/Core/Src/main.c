@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "FreeRTOS.h"
+#include "task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,7 +49,8 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+static void task1_handler(void* parameters);
+static void task2_handler(void* parameters);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -64,6 +66,9 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	TaskHandle_t task1_handle;
+	TaskHandle_t task2_handle;
+	BaseType_t status;
 
   /* USER CODE END 1 */
 
@@ -85,7 +90,16 @@ int main(void)
 
   /* Initialize all configured peripherals */
   /* USER CODE BEGIN 2 */
-//xTaskCreate(pxTaskCode, pcName, uxStackDepth, pvParameters, uxPriority, pxCreatedTask)
+  status = xTaskCreate(task1_handler, "Task-1", 200, "Hello world fromtask 1", 2, &task1_handle);
+  configASSERT(status == pdPASS);
+
+  status = xTaskCreate(task2_handler, "Task-2", 200, "Hello world fromtask 2", 2, &task2_handle);
+  configASSERT(status == pdPASS);
+
+  vTaskStartScheduler();
+
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -141,7 +155,13 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+static void task1_handler(void* parameters){
 
+}
+
+static void task2_handler(void* parameters){
+
+}
 /* USER CODE END 4 */
 
 /**
