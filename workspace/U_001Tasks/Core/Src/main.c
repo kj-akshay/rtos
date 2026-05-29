@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "FreeRTOS.h"
 #include "task.h"
+#include<stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,6 +49,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
 static void task1_handler(void* parameters);
 static void task2_handler(void* parameters);
@@ -66,6 +68,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+
 	TaskHandle_t task1_handle;
 	TaskHandle_t task2_handle;
 	BaseType_t status;
@@ -89,6 +92,7 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
   status = xTaskCreate(task1_handler, "Task-1", 200, "Hello world fromtask 1", 2, &task1_handle);
   configASSERT(status == pdPASS);
@@ -154,12 +158,57 @@ void SystemClock_Config(void)
   }
 }
 
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+
+  /* USER CODE END MX_GPIO_Init_1 */
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PA5 PA6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+
+  /* USER CODE END MX_GPIO_Init_2 */
+}
+
 /* USER CODE BEGIN 4 */
 static void task1_handler(void* parameters){
+	for(;;)
+	{
+	printf("%s\n",(char*)parameters);
+	fflush(stdout);
+	vTaskDelay(pdMS_TO_TICKS(500));
+	//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+
+	}
 
 }
 
 static void task2_handler(void* parameters){
+	for(;;)
+	{
+		printf("%s\n",(char*)parameters);
+		fflush(stdout);
+		vTaskDelay(pdMS_TO_TICKS(500));
+
+	}
 
 }
 /* USER CODE END 4 */
